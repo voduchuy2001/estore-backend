@@ -12,7 +12,7 @@ const login = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email: email });
+    let user = await User.findOne({ email: email });
 
     if (!user) {
       return res.status(404).json({
@@ -32,9 +32,17 @@ const login = async (req, res) => {
       expiresIn: "10000d",
     });
 
+    const userAccount = { ...user.toObject() };
+    delete userAccount.password;
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 100000,
+    });
+
     return res.status(200).json({
       message: "Login success",
-      accessToken: accessToken,
+      user: userAccount,
     });
   } catch (error) {
     return res.status(500).json({
@@ -84,7 +92,34 @@ const register = async (req, res) => {
   }
 };
 
+const logout = (req, res) => {
+  const cookie = req.cookies.accessToken;
+  console.log(cookie);
+
+  try {
+    if (!cookie) {
+      return res.status(400).json({
+        message: "Missing cookie",
+      });
+    }
+
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return res.status(200).json({
+      message: "Logout success",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   login: login,
   register: register,
+  logout: logout,
 };

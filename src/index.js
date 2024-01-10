@@ -3,12 +3,15 @@ const cors = require("cors");
 const database = require("./config/database");
 const initAPIRoutes = require("./routes/api");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const app = express();
 database();
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:3000",
