@@ -4,13 +4,30 @@ const database = require("./config/database");
 const initAPIRoutes = require("./routes/api");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
 database();
 
+const configureMulter = () => {
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, path.join(__dirname, "../src/images/"));
+    },
+    filename: (req, file, cb) => {
+      cb(null, `${file.fieldname}-${Date.now()}-${file.originalname}`);
+    },
+  });
+
+  const upload = multer({ storage: storage });
+
+  return upload;
+};
+
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
@@ -21,7 +38,7 @@ app.use(
 
 const port = process.env.PORT || 6969;
 
-initAPIRoutes(app);
+initAPIRoutes(app, configureMulter());
 
 app.use((req, res, next) => {
   return res.status(404).json({ msg: "404" });

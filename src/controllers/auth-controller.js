@@ -94,7 +94,6 @@ const register = async (req, res) => {
 
 const logout = (req, res) => {
   const cookie = req.cookies.accessToken;
-  console.log(cookie);
 
   try {
     if (!cookie) {
