@@ -1,7 +1,6 @@
 const Product = require("../models/product");
 
 const create = async (req, res) => {
-  console.log(req.body, req.file);
   const { productName, category, description, price } = req.body;
   const image = req.file.filename;
 
@@ -31,6 +30,33 @@ const create = async (req, res) => {
   }
 };
 
+const index = async (req, res) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit) : 12;
+    const search = req.query.search || "";
+
+    const products = await Product.find({
+      name: { $regex: search, $options: "i" },
+    }).limit(limit);
+
+    if (!products) {
+      return res.status(200).json({
+        message: "Not found records",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Products",
+      products: products,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   create: create,
+  index: index,
 };

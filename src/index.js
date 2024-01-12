@@ -21,9 +21,7 @@ const configureMulter = () => {
     },
   });
 
-  const upload = multer({ storage: storage });
-
-  return upload;
+  return multer({ storage: storage });
 };
 
 app.use(bodyParser.json());
@@ -35,6 +33,8 @@ app.use(
     credentials: true,
   })
 );
+app.use("/images", express.static(path.join(__dirname, "../src/images")));
+app.enable("trust proxy");
 
 const port = process.env.PORT || 6969;
 
