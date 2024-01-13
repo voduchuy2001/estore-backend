@@ -6,12 +6,6 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    if (!email || !password) {
-      return res.status(400).json({
-        message: "Missing input field",
-      });
-    }
-
     let user = await User.findOne({ email: email });
 
     if (!user) {
@@ -52,21 +46,9 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  const { email, password, confirmPassword } = req.body;
+  const { email, password } = req.body;
 
   try {
-    if (!email || !password || !confirmPassword) {
-      return res.status(400).json({
-        message: "Missing input field",
-      });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        message: "Password dose not match",
-      });
-    }
-
     const user = await User.findOne({ email: email });
 
     if (user) {
@@ -96,12 +78,6 @@ const logout = (req, res) => {
   const cookie = req.cookies.accessToken;
 
   try {
-    if (!cookie) {
-      return res.status(400).json({
-        message: "Missing cookie",
-      });
-    }
-
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: true,

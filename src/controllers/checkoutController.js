@@ -6,12 +6,6 @@ const redirect = async (req, res) => {
   try {
     const { email, name, total } = req.body;
 
-    if (!email || !name || !total) {
-      return res.status(200).json({
-        message: "Missing input field",
-      });
-    }
-
     let ipAddr =
       req.headers["x-forwarded-for"] ||
       req.connection.remoteAddress ||

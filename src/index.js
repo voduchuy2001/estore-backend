@@ -4,25 +4,12 @@ const database = require("./config/database");
 const initAPIRoutes = require("./routes/api");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const multer = require("multer");
 const path = require("path");
+const configureMulter = require("./config/multer");
 require("dotenv").config();
 
 const app = express();
 database();
-
-const configureMulter = () => {
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, path.join(__dirname, "../src/images/"));
-    },
-    filename: (req, file, cb) => {
-      cb(null, `${file.fieldname}-${Date.now()}-${file.originalname}`);
-    },
-  });
-
-  return multer({ storage: storage });
-};
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -41,7 +28,7 @@ const port = process.env.PORT || 6969;
 initAPIRoutes(app, configureMulter());
 
 app.use((req, res, next) => {
-  return res.status(404).json({ msg: "404" });
+  return res.status(404).json({ message: "404" });
 });
 
 app.listen(port, () => {

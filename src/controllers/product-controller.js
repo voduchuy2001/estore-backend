@@ -2,21 +2,15 @@ const Product = require("../models/product");
 
 const create = async (req, res) => {
   const { productName, category, description, price } = req.body;
-  const image = req.file.filename;
+  const image = req.file;
 
   try {
-    if (!productName || !category || !description || !price || !image) {
-      return res.status(400).json({
-        message: "Missing input field",
-      });
-    }
-
     const product = await Product.create({
       name: productName,
       category: category,
       description: description,
       price: price,
-      image: image,
+      image: image ? image.filename : "",
     });
 
     return res.status(200).json({
@@ -34,7 +28,6 @@ const index = async (req, res) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit) : 12;
     const search = req.query.search || "";
-    console.log(search);
 
     const products = await Product.find({
       name: { $regex: search, $options: "i" },

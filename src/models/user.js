@@ -12,6 +12,10 @@ var userSchema = new mongoose.Schema(
       required: true,
       minLength: 6,
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
     verifiedAt: Date,
     verifyToken: String,
     verifyTokenExpired: Date,
