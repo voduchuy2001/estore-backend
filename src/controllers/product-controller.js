@@ -34,6 +34,7 @@ const index = async (req, res) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit) : 12;
     const search = req.query.search || "";
+    console.log(search);
 
     const products = await Product.find({
       name: { $regex: search, $options: "i" },
