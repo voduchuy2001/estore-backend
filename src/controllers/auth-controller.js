@@ -9,7 +9,7 @@ const login = async (req, res) => {
     let user = await User.findOne({ email: email });
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: "Not found records",
       });
     }

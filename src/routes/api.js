@@ -1,8 +1,9 @@
 const express = require("express");
 const authController = require("../controllers/auth-controller");
 const productController = require("../controllers/product-controller");
-const checkoutController = require("../controllers/checkoutController");
+const checkoutController = require("../controllers/checkout-controller");
 const socialiteController = require("../controllers/socialite-controller");
+const orderController = require("../controllers/order-controller");
 const authRequest = require("../requests/auth-request");
 const placeOrderRequest = require("../requests/place-order");
 const validate = require("../middlewares/validate");
@@ -38,6 +39,8 @@ const initAPIRoutes = (app, upload) => {
 
   router.get("/redirect/auth-google", socialiteController.redirect);
   router.get("/callback/auth-google", socialiteController.callback);
+
+  router.get("/tracking/:id", orderController.tracking);
 
   app.use("/api/v1", router);
 };

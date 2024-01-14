@@ -1,23 +1,49 @@
 const moment = require("moment");
 const querystring = require("qs");
 const Order = require("../models/order");
+const OrderProduct = require("../models/order-product");
+const Product = require("../models/product");
 
 const redirect = async (req, res) => {
   try {
-    const { email, name, total } = req.body;
+    const { email, name, address, phoneNumber, productIds } = req.body;
+
+    const order = new Order({
+      name,
+      address,
+      email,
+      phoneNumber,
+      products: [],
+      total: 0,
+    });
+
+    const orderProductPromises = productIds.map(
+      async ([productId, quantity]) => {
+        const product = await Product.findOne({ _id: productId });
+        if (product) {
+          const orderProduct = new OrderProduct({
+            name: product.name,
+            image: product.image,
+            price: product.price,
+            quantity: quantity,
+          });
+
+          await orderProduct.save();
+
+          order.products.push(orderProduct._id);
+          order.total += product.price * quantity;
+        }
+      }
+    );
+
+    await Promise.all(orderProductPromises);
+    await order.save();
 
     let ipAddr =
       req.headers["x-forwarded-for"] ||
       req.connection.remoteAddress ||
       req.socket.remoteAddress ||
       req.connection.socket.remoteAddress;
-
-    const order = await Order.create({
-      name: name,
-      email: email,
-      total: total,
-      status: "pending",
-    });
 
     let tmnCode = "578OFK9C";
     let secretKey = "ZENTLNQFERZDRTZGUSONUPVHJTMFVFVL";
@@ -26,11 +52,11 @@ const redirect = async (req, res) => {
 
     let date = new Date();
     let createDate = moment(date).format("YYYYMMDDHHmmss");
-    let amount = total;
+    let amount = order.total;
     let bankCode = "NCB";
 
-    let orderInfo = "Demo";
-    let orderType = "billpayment";
+    let orderInfo = "EStore";
+    let orderType = "Bill Payment";
     let locale = "vn";
 
     let currCode = "VND";
