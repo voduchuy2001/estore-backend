@@ -9,8 +9,6 @@ var userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
-      minLength: 6,
     },
     isAdmin: {
       type: Boolean,
