@@ -31,12 +31,12 @@ const accessLogStream = fs.createWriteStream(
   { flags: "a" }
 );
 app.use(morgan("combined", { stream: accessLogStream }));
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000,
-//   limit: 120,
-// });
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 120,
+});
 
-// app.use(limiter);
+app.use(limiter);
 
 const port = process.env.PORT || 6969;
 
