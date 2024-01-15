@@ -1,4 +1,5 @@
 const Order = require("../models/order");
+const User = require("../models/user");
 
 const tracking = async (req, res) => {
   try {
@@ -24,6 +25,28 @@ const tracking = async (req, res) => {
   }
 };
 
+const userOrders = async (req, res) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit) : 12;
+    const user = await User.findOne({ _id: req.user.id });
+
+    const orders = await Order.find({ email: user.email })
+      .populate({
+        path: "products",
+      })
+      .limit(limit);
+
+    return res.status(200).json({
+      orders: orders ?? [],
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   tracking: tracking,
+  userOrders: userOrders,
 };

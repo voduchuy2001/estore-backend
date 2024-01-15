@@ -7,7 +7,7 @@ const orderController = require("../controllers/order-controller");
 const authRequest = require("../requests/auth-request");
 const placeOrderRequest = require("../requests/place-order");
 const validate = require("../middlewares/validate");
-const validateUser = require("../middlewares/authenticated");
+const { verifyToken, isAdmin } = require("../middlewares/authenticated");
 const configureMulter = require("../config/multer");
 const resetPassword = require("../requests/reset-password");
 
@@ -38,7 +38,7 @@ const initAPIRoutes = (app) => {
 
   router.post(
     "/new-product",
-    [validateUser.verifyToken, validateUser.isAdmin],
+    [verifyToken, isAdmin],
     upload.single("image"),
     productController.create
   );
@@ -56,6 +56,7 @@ const initAPIRoutes = (app) => {
   router.get("/callback/auth-google", socialiteController.callback);
 
   router.get("/tracking/:id", orderController.tracking);
+  router.get("/user-orders", [verifyToken], orderController.userOrders);
 
   app.use("/api/v1", router);
 };
