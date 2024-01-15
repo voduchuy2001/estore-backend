@@ -45,10 +45,10 @@ const redirect = async (req, res) => {
       req.socket.remoteAddress ||
       req.connection.socket.remoteAddress;
 
-    let tmnCode = "578OFK9C";
-    let secretKey = "ZENTLNQFERZDRTZGUSONUPVHJTMFVFVL";
-    let vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    let returnUrl = "http://localhost:3000/callback-vnpay";
+    let tmnCode = process.env.VNPAY_TMNCODE;
+    let secretKey = process.env.VNPAY_SECRETKET;
+    let vnpUrl = process.env.VNPAY_URL;
+    let returnUrl = process.env.VNPAY_RETURN_URL;
 
     let date = new Date();
     let createDate = moment(date).format("YYYYMMDDHHmmss");

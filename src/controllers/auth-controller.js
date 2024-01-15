@@ -1,6 +1,7 @@
 const User = require("../models/user");
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const transporter = require("../config/mail");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -10,15 +11,15 @@ const login = async (req, res) => {
 
     if (!user) {
       return res.status(400).json({
-        message: "Not found records",
+        message: "Not found record",
       });
     }
 
-    const comparePassword = await bcrypt.compare(password, user.password);
+    const compare = await user.comparePassword(password);
 
-    if (!comparePassword) {
-      return res.status(401).json({
-        message: "Unauthorize",
+    if (!compare) {
+      return res.status(400).json({
+        message: "Password dose not match",
       });
     }
 
@@ -57,11 +58,9 @@ const register = async (req, res) => {
       });
     }
 
-    const hashPassword = await bcrypt.hash(password, 10);
-
     await User.create({
       email: email,
-      password: hashPassword,
+      password: password,
     });
 
     return res.status(200).json({
@@ -75,8 +74,6 @@ const register = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  const cookie = req.cookies.accessToken;
-
   try {
     res.clearCookie("accessToken", {
       httpOnly: true,
@@ -93,8 +90,95 @@ const logout = (req, res) => {
   }
 };
 
+const forgot = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+
+    const user = await User.findOneAndUpdate(
+      { email: email },
+      {
+        $set: {
+          passwordResetToken: crypto
+            .createHash("sha256")
+            .update(resetPasswordToken)
+            .digest("hex"),
+          passwordResetExpired: Date.now() + 15 * 60 * 1000,
+        },
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Not found record",
+      });
+    }
+
+    const html = `You are receiving this email because we received a password reset request for your account.This password reset link will expire in 15 minutes. 
+            <a href=${process.env.URL_SERVER}/reset-password/${resetPasswordToken}>Click here</a>`;
+
+    const mail = await transporter.sendMail({
+      from: process.env.MAIL_FROM_ADDRESS,
+      to: user.email,
+      subject: "Reset Password",
+      html: html,
+    });
+
+    if (!mail) {
+      return res.status(200).json({
+        message: "Please try again",
+      });
+    }
+
+    return res.status(200).json({
+      message: "A password retrieval link has been sent to your email address",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const reset = async (req, res) => {
+  try {
+    const { password, token } = req.body;
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpired: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Token expired",
+      });
+    }
+
+    user.password = password;
+    user.passwordResetToken = null;
+    user.passwordResetExpired = null;
+    user.passwordChangedAt = Date.now();
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Your password has been reset",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   login: login,
   register: register,
   logout: logout,
+  forgot: forgot,
+  reset: reset,
 };

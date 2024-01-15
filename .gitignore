@@ -1,4 +1,5 @@
 package-lock.json
 node_modules
 .env
-/src/images/*
+/src/storage/images/*
+/src/storage/logs/express.log

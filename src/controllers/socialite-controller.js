@@ -1,11 +1,12 @@
 const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+require("dotenv").config();
 
 const oAuth2Client = new OAuth2Client(
-  "91030990284-21oe0s9m3vcg12mj6hh0bn5up646tm32.apps.googleusercontent.com",
-  "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",
-  "http://localhost:3000/callback/auth-google"
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
 );
 
 const redirect = async (req, res) => {
@@ -14,6 +15,8 @@ const redirect = async (req, res) => {
       access_type: "offline",
       scope: "email",
     });
+
+    console.log(url);
 
     return res.status(200).json({
       url: url,

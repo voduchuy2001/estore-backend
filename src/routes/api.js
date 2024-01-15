@@ -8,10 +8,13 @@ const authRequest = require("../requests/auth-request");
 const placeOrderRequest = require("../requests/place-order");
 const validate = require("../middlewares/validate");
 const validateUser = require("../middlewares/authenticated");
+const configureMulter = require("../config/multer");
+const resetPassword = require("../requests/reset-password");
 
 const router = express.Router();
+const upload = configureMulter();
 
-const initAPIRoutes = (app, upload) => {
+const initAPIRoutes = (app) => {
   router.post("/login", authRequest.login(), validate, authController.login);
   router.post(
     "/register",
@@ -20,6 +23,18 @@ const initAPIRoutes = (app, upload) => {
     authController.register
   );
   router.post("/logout", authRequest.logout(), validate, authController.logout);
+  router.post(
+    "/forgot-password",
+    resetPassword.forgot(),
+    validate,
+    authController.forgot
+  );
+  router.post(
+    "/reset-password",
+    resetPassword.reset(),
+    validate,
+    authController.reset
+  );
 
   router.post(
     "/new-product",
