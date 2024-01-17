@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.URL_SERVER,
     credentials: true,
   })
 );
@@ -27,7 +27,7 @@ app.use(
   express.static(path.join(__dirname, "../src/storage/images"))
 );
 const accessLogStream = fs.createWriteStream(
-  path.join(__dirname, "../src/storage/logs/express.log"),
+  path.join(__dirname, "/storage/logs/express.log"),
   { flags: "a" }
 );
 app.use(morgan("combined", { stream: accessLogStream }));

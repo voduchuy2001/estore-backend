@@ -10,6 +10,7 @@ const validate = require("../middlewares/validate");
 const { verifyToken, isAdmin } = require("../middlewares/authenticated");
 const configureMulter = require("../config/multer");
 const resetPassword = require("../requests/reset-password");
+const productRequest = require("../requests/product-request");
 
 const router = express.Router();
 const upload = configureMulter();
@@ -40,6 +41,8 @@ const initAPIRoutes = (app) => {
     "/new-product",
     [verifyToken, isAdmin],
     upload.single("image"),
+    productRequest.create(),
+    validate,
     productController.create
   );
   router.get("/products", productController.index);
