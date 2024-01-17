@@ -27,7 +27,7 @@ app.use(
   express.static(path.join(__dirname, "../src/storage/images"))
 );
 const accessLogStream = fs.createWriteStream(
-  path.join(__dirname, "/storage/logs/express.log"),
+  path.join(__dirname, "storage/logs/express.log"),
   { flags: "a" }
 );
 app.use(morgan("combined", { stream: accessLogStream }));
