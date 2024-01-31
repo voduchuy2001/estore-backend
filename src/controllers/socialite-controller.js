@@ -16,8 +16,6 @@ const redirect = async (req, res) => {
       scope: "email",
     });
 
-    console.log(url);
-
     return res.status(200).json({
       url: url,
     });
